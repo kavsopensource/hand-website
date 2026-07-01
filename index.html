@@ -111,8 +111,8 @@ window.addEventListener('mousemove', (e) => {
   mouseX = (e.clientX / window.innerWidth) * 2 - 1;
 });
 // ---- Scroll tracking ----
-let scrollY = 0;
-let currentScrollY = 0;
+let scrollY = window.scrollY;
+let currentScrollY = window.scrollY;
 window.addEventListener('scroll', () => {
   scrollY = window.scrollY;
 });
