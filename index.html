@@ -5,12 +5,12 @@
 <title>Hand</title>
 <style>
   html, body {
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    background: #ffffff;
-    height: 100%;
-  }
+  margin: 0;
+  padding: 0;
+  overflow-y: scroll;
+  background: #ffffff;
+  height: 100%;
+}
   #asciiContainer {
     position: fixed;
     top: 0;
@@ -26,6 +26,7 @@
 <body>
 
 <div id="asciiContainer"></div>
+<div id="scrollSpacer" style="height: 300vh; pointer-events: none;"></div>
 
 <script type="importmap">
 {
@@ -107,6 +108,12 @@ let mouseX = 0;
 window.addEventListener('mousemove', (e) => {
   mouseX = (e.clientX / window.innerWidth) * 2 - 1;
 });
+// ---- Scroll tracking ----
+let scrollY = 0;
+let currentScrollY = 0;
+window.addEventListener('scroll', () => {
+  scrollY = window.scrollY;
+});
 
 // ---- Rotation ----
 const maxRotation = 0.35;
@@ -124,10 +131,16 @@ function animate(timestamp) {
   lastTime = timestamp - (delta % interval);
 
   if (handModel) {
-    targetRotation = mouseX * maxRotation;
-    currentRotation += (targetRotation - currentRotation) * 0.05;
-    pivotGroup.rotation.y = currentRotation;
-  }
+  targetRotation = mouseX * maxRotation;
+  currentRotation += (targetRotation - currentRotation) * 0.05;
+  pivotGroup.rotation.y = currentRotation;
+
+  // Smooth scroll following -- hand drifts up as page scrolls down
+  currentScrollY += (scrollY - currentScrollY) * 0.04;
+  const maxScrollLift = 2.5; // how far up the hand can travel
+  const scrollNorm = Math.min(currentScrollY / (document.body.scrollHeight - window.innerHeight), 1);
+  pivotGroup.position.y = -0.5 + scrollNorm * maxScrollLift;
+}
 
   effect.render(scene, camera);
 }
