@@ -47,7 +47,7 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xffffff);
 
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 1.5, 5);
+camera.position.set(0, 1.5, 7);
 camera.lookAt(0, 1, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -157,12 +157,12 @@ const distance = (0 - camera.position.z) / dir.z;
 const pos = camera.position.clone().add(dir.multiplyScalar(distance));
 
 // Offset so fingertips (not forearm center) align with cursor
-const fingerOffset = 1.8; // nudges the model down so fingers are at cursor
+const fingerOffset = 2.8; // nudges the model down so fingers are at cursor
 
 // Clamp position so forearm end never shows
 const clampX = 1.5;
-const clampYMin = -0.8;
-const clampYMax = 0.8;
+const clampYMin = -0.5;
+const clampYMax = 0.5;
 
 pivotGroup.position.x = Math.max(-clampX, Math.min(clampX, pos.x));
 pivotGroup.position.y = Math.max(clampYMin, Math.min(clampYMax, pos.y - fingerOffset)) + scrollOffset;
