@@ -157,7 +157,7 @@ const distance = (0 - camera.position.z) / dir.z;
 const pos = camera.position.clone().add(dir.multiplyScalar(distance));
 
 // Offset so fingertips (not forearm center) align with cursor
-const fingerOffset = 1.2; // nudges the model down so fingers are at cursor
+const fingerOffset = 2.0; // nudges the model down so fingers are at cursor
 
 // Clamp position so forearm end never shows
 const clampX = 1.5;
