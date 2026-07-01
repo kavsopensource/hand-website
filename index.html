@@ -82,7 +82,7 @@ const charSet = ' .,:░▒▓█';
 
 const effect = new AsciiEffect(renderer, charSet, {
   invert: false,      // bright background stays blank, dark hand becomes characters
-  resolution: 0.12,   // lower = more characters/denser, higher = sparser. Tune this.
+  resolution: 0.09,   // lower = more characters/denser, higher = sparser. Tune this.
   color: true          // render actual per-character color from the lit scene
 });
 effect.setSize(window.innerWidth, window.innerHeight);
@@ -137,8 +137,15 @@ let currentRotation = 0;
 let targetRotation = 0;
 
 // ---- Render loop ----
-function animate() {
+let lastTime = 0;
+const targetFPS = 30;
+const interval = 1000 / targetFPS;
+
+function animate(timestamp) {
   requestAnimationFrame(animate);
+  const delta = timestamp - lastTime;
+  if (delta < interval) return;
+  lastTime = timestamp - (delta % interval);
 
   if (handModel) {
     targetRotation = mouseX * maxRotation;
@@ -148,7 +155,7 @@ function animate() {
 
   effect.render(scene, camera);
 }
-animate();
+animate(0);
 
 // ---- Handle window resize ----
 window.addEventListener('resize', () => {
@@ -159,5 +166,4 @@ window.addEventListener('resize', () => {
 </script>
 
 </body>
-</html>
 </html>
