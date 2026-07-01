@@ -47,7 +47,7 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xffffff);
 
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 1.5, 7);
+camera.position.set(0, 1.5, 5);
 camera.lookAt(0, 1, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -79,8 +79,15 @@ effect.domElement.style.backgroundColor = '#ffffff';
 document.getElementById('asciiContainer').appendChild(effect.domElement);
 
 // ---- Hand model ----
+// pivotGroup moves left/right with mouse (X only)
+// handModel is offset inside it so the forearm base
+// always sits below the bottom of the screen
 const pivotGroup = new THREE.Group();
 scene.add(pivotGroup);
+
+// Anchor the pivot at the bottom of the screen in world space
+// The forearm will extend downward from here, off screen
+pivotGroup.position.set(0, -2.2, 0);
 
 const modelHeight = 3.69;
 const wristHeightEstimate = modelHeight * 0.27;
@@ -96,23 +103,19 @@ loader.load(
     const min = box.min;
     handModel.position.x -= center.x;
     handModel.position.z -= center.z;
-    handModel.position.y -= (min.y + wristHeightEstimate);
+    // Offset so the forearm base sits at pivotGroup origin (off screen bottom)
+    // and the hand/fingers extend upward into view
+    handModel.position.y -= min.y;
     pivotGroup.add(handModel);
-    pivotGroup.position.set(0, -0.5, 0);
   }
 );
 
-// ---- Mouse tracking ----
-// Raw mouse -1 to 1 on both axes
+// ---- Mouse tracking (X only for left/right) ----
 let mouseX = 0;
-let mouseY = 0;
-// Smoothed values
 let currentMouseX = 0;
-let currentMouseY = 0;
 
 window.addEventListener('mousemove', (e) => {
   mouseX = (e.clientX / window.innerWidth) * 2 - 1;
-  mouseY = -((e.clientY / window.innerHeight) * 2 - 1); // invert Y so up = positive
 });
 
 // ---- Scroll tracking ----
@@ -127,10 +130,6 @@ const maxRotation = 0.3;
 let currentRotation = 0;
 let targetRotation = 0;
 
-// ---- How far the hand drifts toward the mouse (in 3D units) ----
-const mouseDriftX = 0.8;  // left/right drift amount
-const mouseDriftY = 0.4;  // up/down drift amount
-
 // ---- Render loop ----
 let lastTime = 0;
 const interval = 1000 / 30;
@@ -139,42 +138,25 @@ function animate(timestamp) {
   requestAnimationFrame(animate);
 
   if (handModel) {
-    // Smooth mouse following -- runs every frame for fluid feel
+    // Smooth mouse X -- hand sways left/right, forearm base stays at bottom
     currentMouseX += (mouseX - currentMouseX) * 0.04;
-    currentMouseY += (mouseY - currentMouseY) * 0.04;
+    // Clamp so it doesn't go too far sideways
+    const clampX = 0.8;
+    pivotGroup.position.x = Math.max(-clampX, Math.min(clampX, currentMouseX * clampX));
 
-    // Smooth scroll
+    // Scroll lifts the hand slightly upward
     currentScrollY += (scrollY - currentScrollY) * 0.02;
     const maxScrollLift = 0.8;
     const scrollNorm = Math.min(currentScrollY / (document.body.scrollHeight - window.innerHeight), 1);
-    const scrollOffset = scrollNorm * maxScrollLift;
-
-    // Unproject mouse to world position at the hand's depth
-const vec = new THREE.Vector3(currentMouseX, currentMouseY, 0.5);
-vec.unproject(camera);
-const dir = vec.sub(camera.position).normalize();
-const distance = (0 - camera.position.z) / dir.z;
-const pos = camera.position.clone().add(dir.multiplyScalar(distance));
-
-// Offset so fingertips (not forearm center) align with cursor
-const fingerOffset = 2.8; // nudges the model down so fingers are at cursor
-
-// Clamp position so forearm end never shows
-const clampX = 1.5;
-const clampYMin = -0.5;
-const clampYMax = 0.5;
-
-pivotGroup.position.x = Math.max(-clampX, Math.min(clampX, pos.x));
-pivotGroup.position.y = Math.max(clampYMin, Math.min(clampYMax, pos.y - fingerOffset)) + scrollOffset;
+    pivotGroup.position.y = -2.2 + scrollNorm * maxScrollLift;
   }
 
-  // Throttle the expensive ASCII render to 30fps
+  // Throttle ASCII render to 30fps
   const delta = timestamp - lastTime;
   if (delta < interval) return;
   lastTime = timestamp - (delta % interval);
 
   if (handModel) {
-    // Wrist rotation still follows mouse X
     targetRotation = mouseX * maxRotation;
     currentRotation += (targetRotation - currentRotation) * 0.05;
     pivotGroup.rotation.y = currentRotation;
