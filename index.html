@@ -138,8 +138,8 @@ function animate(timestamp) {
   pivotGroup.rotation.y = currentRotation;
 
   // Smooth scroll following -- hand drifts up as page scrolls down
-  currentScrollY += (scrollY - currentScrollY) * 0.04;
-  const maxScrollLift = 2.5; // how far up the hand can travel
+  currentScrollY += (scrollY - currentScrollY) * 0.08;
+  const maxScrollLift = 1.5; // how far up the hand can travel
   const scrollNorm = Math.min(currentScrollY / (document.body.scrollHeight - window.innerHeight), 1);
   pivotGroup.position.y = -0.5 + scrollNorm * maxScrollLift;
 }
