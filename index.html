@@ -149,9 +149,15 @@ function animate(timestamp) {
     const scrollNorm = Math.min(currentScrollY / (document.body.scrollHeight - window.innerHeight), 1);
     const scrollOffset = scrollNorm * maxScrollLift;
 
-    // Apply position: base + mouse drift + scroll lift
-    pivotGroup.position.x = currentMouseX * mouseDriftX;
-    pivotGroup.position.y = -0.5 + currentMouseY * mouseDriftY + scrollOffset;
+    // Unproject mouse to world position at the hand's depth
+const vec = new THREE.Vector3(currentMouseX, currentMouseY, 0.5);
+vec.unproject(camera);
+const dir = vec.sub(camera.position).normalize();
+const distance = (0 - camera.position.z) / dir.z;
+const pos = camera.position.clone().add(dir.multiplyScalar(distance));
+
+pivotGroup.position.x = pos.x;
+pivotGroup.position.y = pos.y + scrollOffset;
   }
 
   // Throttle the expensive ASCII render to 30fps
