@@ -148,7 +148,7 @@ function animate(timestamp) {
     currentScrollY += (scrollY - currentScrollY) * 0.02;
     const maxScrollLift = 0.8;
     const scrollNorm = Math.min(currentScrollY / (document.body.scrollHeight - window.innerHeight), 1);
-    pivotGroup.position.y = -0.5 + scrollNorm * maxScrollLift;
+    pivotGroup.position.y = -0.9 + scrollNorm * maxScrollLift;
   }
 
   // Throttle ASCII render to 30fps
