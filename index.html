@@ -128,21 +128,25 @@ const interval = 1000 / 30;
 
 function animate(timestamp) {
   requestAnimationFrame(animate);
+
+  // Scroll lerp runs every frame, not throttled
+  if (handModel) {
+    currentScrollY += (scrollY - currentScrollY) * 0.06;
+    const maxScrollLift = 1.5;
+    const scrollNorm = Math.min(currentScrollY / (document.body.scrollHeight - window.innerHeight), 1);
+    pivotGroup.position.y = -0.5 + scrollNorm * maxScrollLift;
+  }
+
+  // Everything else throttled to 30fps
   const delta = timestamp - lastTime;
   if (delta < interval) return;
   lastTime = timestamp - (delta % interval);
 
   if (handModel) {
-  targetRotation = mouseX * maxRotation;
-  currentRotation += (targetRotation - currentRotation) * 0.05;
-  pivotGroup.rotation.y = currentRotation;
-
-  // Smooth scroll following -- hand drifts up as page scrolls down
-  currentScrollY += (scrollY - currentScrollY) * 0.08;
-  const maxScrollLift = 1.5; // how far up the hand can travel
-  const scrollNorm = Math.min(currentScrollY / (document.body.scrollHeight - window.innerHeight), 1);
-  pivotGroup.position.y = -0.5 + scrollNorm * maxScrollLift;
-}
+    targetRotation = mouseX * maxRotation;
+    currentRotation += (targetRotation - currentRotation) * 0.05;
+    pivotGroup.rotation.y = currentRotation;
+  }
 
   effect.render(scene, camera);
 }
