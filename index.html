@@ -55,7 +55,8 @@ camera.position.set(0, 1.5, 5);
 camera.lookAt(0, 1, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
+const RENDER_SCALE = 0.5; // render at half resolution internally
+renderer.setSize(window.innerWidth * RENDER_SCALE, window.innerHeight * RENDER_SCALE);
 
 // ---- Lighting ----
 // Two contrasting colored lights so the ASCII effect (with color:true)
@@ -161,6 +162,7 @@ animate(0);
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth * RENDER_SCALE, window.innerHeight * RENDER_SCALE);
   effect.setSize(window.innerWidth, window.innerHeight);
 });
 </script>
