@@ -161,8 +161,8 @@ const fingerOffset = 2.0; // nudges the model down so fingers are at cursor
 
 // Clamp position so forearm end never shows
 const clampX = 1.5;
-const clampYMin = -1.2;
-const clampYMax = 0.8;
+const clampYMin = 0.4;
+const clampYMax = 1.8;
 
 pivotGroup.position.x = Math.max(-clampX, Math.min(clampX, pos.x));
 pivotGroup.position.y = Math.max(clampYMin, Math.min(clampYMax, pos.y - fingerOffset)) + scrollOffset;
