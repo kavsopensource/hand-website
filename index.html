@@ -4,14 +4,12 @@
 <meta charset="UTF-8">
 <title>Hand</title>
 <style>
-  html, body {
-  margin: 0;
-  padding: 0;
-  overflow-y: scroll;
-  background: #ffffff;
-  min-height: 100%;
-}
-
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { overflow-y: scroll; }
+  body {
+    background: #ffffff;
+    min-height: 100%;
+  }
   #asciiContainer {
     position: fixed;
     top: 0;
@@ -26,8 +24,9 @@
 </style>
 </head>
 <body>
+
 <div id="asciiContainer"></div>
-<div id="scrollSpacer" style="height: 500vh; pointer-events: none;"></div>
+<div style="height: 500vh;"></div>
 
 <script type="importmap">
 {
@@ -69,7 +68,6 @@ scene.add(fillLight);
 
 // ---- ASCII Effect ----
 const charSet = ' ░▒▓█';
-
 const effect = new AsciiEffect(renderer, charSet, {
   invert: false,
   resolution: 0.15,
@@ -104,11 +102,19 @@ loader.load(
   }
 );
 
-// ---- Mouse ----
+// ---- Mouse tracking ----
+// Raw mouse -1 to 1 on both axes
 let mouseX = 0;
+let mouseY = 0;
+// Smoothed values
+let currentMouseX = 0;
+let currentMouseY = 0;
+
 window.addEventListener('mousemove', (e) => {
   mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+  mouseY = -((e.clientY / window.innerHeight) * 2 - 1); // invert Y so up = positive
 });
+
 // ---- Scroll tracking ----
 let scrollY = window.scrollY;
 let currentScrollY = window.scrollY;
@@ -117,31 +123,44 @@ window.addEventListener('scroll', () => {
 });
 
 // ---- Rotation ----
-const maxRotation = 0.35;
+const maxRotation = 0.3;
 let currentRotation = 0;
 let targetRotation = 0;
 
-// ---- Render loop (30fps) ----
+// ---- How far the hand drifts toward the mouse (in 3D units) ----
+const mouseDriftX = 0.8;  // left/right drift amount
+const mouseDriftY = 0.4;  // up/down drift amount
+
+// ---- Render loop ----
 let lastTime = 0;
 const interval = 1000 / 30;
 
 function animate(timestamp) {
   requestAnimationFrame(animate);
 
-  // Scroll lerp runs every frame, not throttled
   if (handModel) {
+    // Smooth mouse following -- runs every frame for fluid feel
+    currentMouseX += (mouseX - currentMouseX) * 0.04;
+    currentMouseY += (mouseY - currentMouseY) * 0.04;
+
+    // Smooth scroll
     currentScrollY += (scrollY - currentScrollY) * 0.02;
     const maxScrollLift = 0.8;
     const scrollNorm = Math.min(currentScrollY / (document.body.scrollHeight - window.innerHeight), 1);
-    pivotGroup.position.y = -0.5 + scrollNorm * maxScrollLift;
+    const scrollOffset = scrollNorm * maxScrollLift;
+
+    // Apply position: base + mouse drift + scroll lift
+    pivotGroup.position.x = currentMouseX * mouseDriftX;
+    pivotGroup.position.y = -0.5 + currentMouseY * mouseDriftY + scrollOffset;
   }
 
-  // Everything else throttled to 30fps
+  // Throttle the expensive ASCII render to 30fps
   const delta = timestamp - lastTime;
   if (delta < interval) return;
   lastTime = timestamp - (delta % interval);
 
   if (handModel) {
+    // Wrist rotation still follows mouse X
     targetRotation = mouseX * maxRotation;
     currentRotation += (targetRotation - currentRotation) * 0.05;
     pivotGroup.rotation.y = currentRotation;
