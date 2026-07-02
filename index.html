@@ -87,7 +87,7 @@ scene.add(pivotGroup);
 
 // Anchor the pivot at the bottom of the screen in world space
 // The forearm will extend downward from here, off screen
-pivotGroup.position.set(0, -1.5, 0);
+pivotGroup.position.set(0, -1.2, 0);
 
 const modelHeight = 3.69;
 const wristHeightEstimate = modelHeight * 0.27;
@@ -148,7 +148,7 @@ function animate(timestamp) {
     currentScrollY += (scrollY - currentScrollY) * 0.02;
     const maxScrollLift = 0.8;
     const scrollNorm = Math.min(currentScrollY / (document.body.scrollHeight - window.innerHeight), 1);
-    pivotGroup.position.y = -1.5 + scrollNorm * maxScrollLift;
+    pivotGroup.position.y = -1.2 + scrollNorm * maxScrollLift;
   }
 
   // Throttle ASCII render to 30fps
