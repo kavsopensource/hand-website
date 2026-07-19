@@ -144,8 +144,8 @@ function animate(timestamp) {
     // Smooth mouse X -- hand sways left/right, forearm base stays at bottom
     currentMouseX += (mouseX - currentMouseX) * 0.04;
     // Clamp so it doesn't go too far sideways
-    const clampX = 0.8;
-    pivotGroup.position.x = Math.max(-clampX, Math.min(clampX, currentMouseX * clampX));
+    const clampX = 2.5;
+    pivotGroup.position.x = Math.max(-clampX, Math.min(clampX, currentMouseX * 2.5));
 
     // Scroll lifts the hand slightly upward
     currentScrollY += (scrollY - currentScrollY) * 0.02;
