@@ -17,9 +17,11 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
+    overflow: visible;
   }
   #asciiContainer pre {
     margin: 0 !important;
+    overflow: visible !important;
   }
 </style>
 </head>
@@ -76,6 +78,7 @@ const effect = new AsciiEffect(renderer, charSet, {
 effect.setSize(window.innerWidth, window.innerHeight);
 effect.domElement.style.color = '#a3221f';
 effect.domElement.style.backgroundColor = '#ffffff';
+effect.domElement.style.overflow = 'visible';
 document.getElementById('asciiContainer').appendChild(effect.domElement);
 
 // ---- Hand model ----
