@@ -113,12 +113,14 @@ loader.load(
   }
 );
 
-// ---- Mouse tracking (X only for left/right) ----
 let mouseX = 0;
+let mouseY = 0;
 let currentMouseX = 0;
+let currentMouseY = 0;
 
 window.addEventListener('mousemove', (e) => {
   mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+  mouseY = -((e.clientY / window.innerHeight) * 2 - 1); // invert: up = positive
 });
 
 // ---- Scroll tracking ----
@@ -151,7 +153,11 @@ function animate(timestamp) {
     currentScrollY += (scrollY - currentScrollY) * 0.02;
     const maxScrollLift = 0.8;
     const scrollNorm = Math.min(currentScrollY / (document.body.scrollHeight - window.innerHeight), 1);
-    pivotGroup.position.y = -1.2 + scrollNorm * maxScrollLift;
+    currentMouseY += (mouseY - currentMouseY) * 0.04;
+// clamp: max height stops fingers going off top, min height keeps forearm clipped off bottom
+const minY = -1.8; // forearm always exits bottom
+const maxY = -0.6; // fingers stay on screen at top
+pivotGroup.position.y = Math.max(minY, Math.min(maxY, -1.2 + currentMouseY * 0.6)) + scrollNorm * maxScrollLift;
   }
 
   // Throttle ASCII render to 30fps
